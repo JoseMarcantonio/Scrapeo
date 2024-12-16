@@ -1,0 +1,131 @@
+--- 
+https://www.google.com/search?q=Frente+de+todos&lr=lang_es&sca_esv=d4a5450862dcd9df&rlz=1C1GCEU_esAR1104AR1105&tbs=lr:lang_1es,cdr:1,cd_min:01/01/2019,cd_max:01/01/2024,sbd:1&tbm=nws&sxsrf=ADLYWILj7jGuqglFK0Md8RFuSd-fNa5TzA:1734366592615&source=lnt&sa=X&ved=2ahUKEwj72qaF26yKAxXqq5UCHT2DA_8QpwV6BAgCEBk&biw=1600&bih=757&dpr=1
+https://news.google.com/search?q=Frente%20de%20todos%20site%3Awww.lanacion.com.ar&hl=en-US&gl=US&ceid=US%3Aen
+title: "Untitled"
+author: "Jose Marcantonio"
+date: "2024-12-16"
+output: html_document
+---
+https://rpubs.com/Semilla_389/989829
+```{r setup, include=FALSE}
+library(tidyverse) # para manipular datos
+library(rvest)     # permite realizar web scraping
+library(polite)    # verificación de robots.txt para web scraping
+library(lubridate) # tabajar con datos tipo fecha
+library(wordcloud) # Crear nubes de palabras
+library(tidytext)  # Manejo de datos tipo texto 
+library(tm)        # Manejo de texto StopWords
+library(jcolors)   # Configuración de colores
+library(xml2)
+```
+
+```{r cars}
+library(rvest)
+library(dplyr)
+
+# URL de noticias
+url <- "https://news.google.com/search?q=frente%20de%20todos&hl=en-US&gl=US&ceid=US%3Aen"
+
+# Leer el HTML de la página
+pagina <- read_html(url)
+
+# Extraer títulos con múltiples selectores CSS
+titulo_noticia <- pagina %>%
+  html_elements(".gPFEn, .JtKRv") %>%
+  html_text()
+
+# Extraer fuentes (puede que quieras ajustar selectores si hay variación)
+fuente_noticia <- pagina %>%
+  html_elements(".vr1PYe") %>%
+  html_text()
+
+# Extraer horas o fechas
+hora_noticia <- pagina %>%
+  html_elements(".hvbAAd") %>%
+  html_text()
+# Extraer fuente
+# Extraer horas#max_length <- max(length(titulo_noticia), length(fuente_noticia), length(hora_noticia))
+
+# Ajustar longitudes rellenando con NA
+#titulo_noticia <- c(titulo_noticia, rep(NA, max_length - length(titulo_noticia)))
+#fuente_noticia <- c(fuente_noticia, rep(NA, max_length - length(fuente_noticia)))
+#hora_noticia <- c(hora_noticia, rep(NA, max_length - length(hora_noticia)))
+
+
+# Crear el data.frame
+df_noticias <- data.frame(
+  titulo = titulo_noticia,
+  hora = hora_noticia,
+  fuente = fuente_noticia,
+  fecha_consulta = Sys.time(),
+  stringsAsFactors = FALSE
+)
+
+# Ver el resultado
+print(titulo_noticia)
+
+```
+```{r pressure, echo=FALSE}
+stop_words_spanish <- data.frame(word = stopwords("spanish"))
+ngrama <-
+  df_noticias %>%
+  select(titulo) %>%
+  # desanida el texto completo por palabra n = 1
+  unnest_tokens(output = "word", titulo, token = "ngrams", n = 1) %>%
+  # elimina las stopwords (palabras NO informativas)
+  anti_join(stop_words_spanish) %>%
+  # conteo del número de veces que aparece cada palabra
+  count(word)
+
+```
+
+```{r}
+wordcloud(
+  words = ngrama$word,
+  freq = ngrama$n,
+  max.words = 100,
+  random.order = FALSE,
+  colors = jcolors("pal3")
+)
+```
+```{r}
+url_LaNacion <- "https://search.brave.com/news?q=frente%20de%20todos" 
+# Leer el HTML de la página
+pagina <- read_html(url)
+
+# Extraer títulos
+titulo_noticia <- pagina %>%
+  html_elements(".result-header l1 svelte-16hzhkl
+") %>%
+  html_text()
+
+# Extraer fuentes
+fuente_noticia <- pagina %>%
+  html_elements(".netloc svelte-16hzhkl") %>%
+  html_text()
+
+# Extraer horas
+hora_noticia <- pagina %>%
+  html_elements(".attr") %>%
+  html_text()
+#max_length <- max(length(titulo_noticia), length(fuente_noticia), length(hora_noticia))
+
+# Ajustar longitudes rellenando con NA
+#titulo_noticia <- c(titulo_noticia, rep(NA, max_length - length(titulo_noticia)))
+#fuente_noticia <- c(fuente_noticia, rep(NA, max_length - length(fuente_noticia)))
+#hora_noticia <- c(hora_noticia, rep(NA, max_length - length(hora_noticia)))
+
+# Crear el data.frame
+df_noticias <- data.frame(
+  titulo = titulo_noticia,
+  fuente = fuente_noticia,
+  hora = hora_noticia,
+  fecha_consulta = Sys.time(),
+  stringsAsFactors = FALSE
+)
+
+# Ver el resultad
+# Ver el resultado
+print(df_noticias)
+```
+
