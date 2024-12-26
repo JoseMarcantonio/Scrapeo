@@ -159,3 +159,36 @@ print(df_noticias)
   cat(titulos_busqueda)
 ```
 
+```{r}
+
+  #Se crea un dataframe con el texto de la busqueda.
+  #Se eliminan palabras no importantes.
+  #Se hace un conteo de las apariciones de las palabras y se ordena de forma descendente.
+  #Se hace un wordcloud con estos datos. 
+
+  busqueda_df <- read.table(text=titulos_busqueda, sep='\n')
+  colnames(busqueda_df)[1] <- "titulo"
+  busqueda_df
+  stop_words_spanish <- data.frame(word = stopwords("spanish"))
+  ngrama <-
+  busqueda_df %>%
+  select(titulo) %>%
+  # desanida el texto completo por palabra n = 1
+  unnest_tokens(output = word, input=titulo, token = "ngrams", n = 1) %>%
+  # elimina las stopwords (palabras NO informativas)
+  anti_join(stop_words_spanish) %>%
+  # conteo del número de veces que aparece cada palabra
+  count(word)
+  ngrama <- ngrama %>% arrange(desc(n))
+  ngrama
+  
+  wordcloud(
+  words = ngrama$word,
+  freq = ngrama$n,
+  max.words = 30,
+  random.order = FALSE,
+  colors = jcolors("pal3")
+)
+```
+
+
