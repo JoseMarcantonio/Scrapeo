@@ -129,3 +129,33 @@ df_noticias <- data.frame(
 print(df_noticias)
 ```
 
+
+```{r}
+  #Pruebas con el diario hoy. Se usa el tag h2 para obtener los titulos.
+
+  url_hoy <- "https://diariohoy.net/busqueda/israel"
+  busqueda_hoy <- read_html(url_hoy)
+  titulos_busqueda <- busqueda_hoy %>%
+    html_elements("h2") %>% 
+    html_text()
+  titulos_busqueda
+  
+```
+
+```{r}
+  #Este codigo realiza busquedas en el diario hoy con palabras claves
+  #Se puede ingresar el valor de las palabras y la cantidad de paginas a revisar.
+  library(svDialogs)
+  busqueda <- dlgInput(message="Ingresa la busqueda: ")$res #Palabras claves de la busqueda
+  paginas <- 20 #Cantidad de paginas a buscar
+  titulos_busqueda <- ""
+  for(i in 1:paginas){
+    url_hoy <- str_interp("https://diariohoy.net/busqueda/${busqueda}?pagina=${i}")
+    busqueda_hoy <- read_html(url_hoy)
+    titulos_busqueda <- paste(titulos_busqueda, busqueda_hoy %>%
+      html_elements("h2") %>%
+      html_text(), sep = '\n')
+  }
+  cat(titulos_busqueda)
+```
+
