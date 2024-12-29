@@ -191,4 +191,19 @@ print(df_noticias)
 )
 ```
 
+```{r}
+  #Pruebas con busqueda de youtube 
+  #Cuando se realiza una petición get a la pagina de busqueda de youtube se tiene como json información de los videos
+  #Entre la información estan los titulos de los videos.
+  #Usando expresiones regulares, teniendo en cuenta el formato de los datos, se sacan los titulos de los primeros videos que salen al hacer un search
+
+  url_youtube <- "https://www.youtube.com/results?search_query=argentina"
+  busqueda_youtube <- read_html(url_youtube)
+  texto_busqueda <- html_text(busqueda_youtube)
+  expresion_regular <- ',"title":\\{"runs":\\[\\{"text":"(.*?)"\\}\\],'
+  cadenas <- str_match_all(texto_busqueda, expresion_regular)
+  titulos_extraidos <- unlist(lapply(cadenas,function(x) x[, 2]))
+  titulos_busqueda <- titulos_extraidos
+```
+
 
